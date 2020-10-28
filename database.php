@@ -1,12 +1,3 @@
-# backup-manager
-数据库备份管理
-
-## 安装
-
-```bash
-mkdir /var/backup && cd /var/backup
-wget https://github.com/Bot-t/backup-manager/raw/main/dist/backup.phar
-cat > database.php <<EOL
 <?php
 return [
     'db1' => [
@@ -17,12 +8,6 @@ return [
         'pass' => '123456',
         'database' => 'dbname',
         'singleTransaction' => false,
+        'num' => 15, // 保留备份文件数量，默认15个
     ],
 ];
-EOL
-```
-
-## 使用
-```bash
-php backup.phar
-```
