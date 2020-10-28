@@ -11,7 +11,7 @@ use BackupManager\Filesystems\FilesystemProvider;
 use BackupManager\Filesystems\LocalFilesystem;
 use BackupManager\Manager;
 
-$backup = Config::fromPhpFile(dirname(Phar::running(false)) . '/backup.php');
+$backup = Config::fromPhpFile(dirname(Phar::running(false)) . '/database.php');
 
 $filesystems = new FilesystemProvider(Config::fromPhpFile(__DIR__ . '/storage.php'));
 $filesystems->add(new LocalFilesystem);
