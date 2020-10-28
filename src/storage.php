@@ -2,6 +2,6 @@
 return [
     'local' => [
         'type' => 'Local',
-        'root' => '/var/backup/',
+        'root' => dirname(Phar::running(false)),
     ],
 ];
