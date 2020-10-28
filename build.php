@@ -4,5 +4,5 @@ $phar = new Phar(__DIR__ . '/dist/backup.phar');
 $phar->startBuffering();
 $phar->buildFromDirectory(__DIR__, '/\.php$/');
 $phar->compressFiles(Phar::GZ);
-$phar->setStub($phar->createDefaultStub('main.php'));
+$phar->setStub('#!/usr/bin/env php' . PHP_EOL . $phar->createDefaultStub('main.php'));
 $phar->stopBuffering();
