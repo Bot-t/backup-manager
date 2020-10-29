@@ -9,19 +9,18 @@ use BackupManager\Databases\MysqlDatabase;
 use BackupManager\Filesystems\Destination;
 use BackupManager\Filesystems\FilesystemProvider;
 use BackupManager\Filesystems\LocalFilesystem;
+use BackupManager\Filesystems\SftpFilesystem;
 use BackupManager\Manager;
 
-$backupConfig = Config::fromPhpFile(dirname(Phar::running(false)) . '/database.php');
+$databaseJson = file_get_contents(dirname(Phar::running(false)) . '/database.json');
+$backupConfig = new Config(json_decode($databaseJson, true));
 
-$fileConfig = new Config([
-    'local' => [
-        'type' => 'Local',
-        'root' => dirname(Phar::running(false)) . '/data/',
-    ],
-]);
+$storageJson = file_get_contents(dirname(Phar::running(false)) . '/storage.json');
+$fileConfig = new Config(json_decode($storageJson, true));
 
 $filesystems = new FilesystemProvider($fileConfig);
 $filesystems->add(new LocalFilesystem);
+$filesystems->add(new SftpFilesystem);
 
 $databases = new DatabaseProvider($backupConfig);
 $databases->add(new MysqlDatabase);
@@ -32,8 +31,6 @@ $compressors->add(new GzipCompressor);
 $manager = new Manager($filesystems, $databases, $compressors);
 
 foreach ($backupConfig->getItems() as $dbname => $config) {
-    $destinations = [new Destination('local', $dbname . '/backup-' . date('YmdHis') . '.sql')];
+    $destinations = [new Destination('sftp', $dbname . '/backup-' . date('YmdHis') . '.sql')];
     $manager->makeBackup()->run($dbname, $destinations, 'gzip');
-    $num = $config['num'] ?? 15;
-    // TODO: 删除多余数量
 }

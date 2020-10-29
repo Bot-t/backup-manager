@@ -6,23 +6,13 @@
 ```bash
 mkdir /var/backup && cd /var/backup
 wget https://github.com/Bot-t/backup-manager/raw/main/dist/backup.phar
-cat > database.php <<EOL
-<?php
-return [
-    'db1' => [
-        'type' => 'mysql',
-        'host' => '127.0.0.1',
-        'port' => '3306',
-        'user' => 'root',
-        'pass' => '123456',
-        'database' => 'dbname',
-        'singleTransaction' => false,
-    ],
-];
-EOL
 ```
 
 ## 使用
+`backup.phar`同级目录新建`storage.json`存储配置文件。
+`backup.phar`同级目录新建`database.json`数据库配置文件。
+
+执行命令：
 ```bash
 php backup.phar
 ```

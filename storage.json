@@ -1,0 +1,15 @@
+{
+  "local": {
+    "type": "Local",
+    "root": "/tmp"
+  },
+  "sftp": {
+    "type": "Sftp",
+    "host": "127.0.0.1",
+    "username": "root",
+    "port": 22,
+    "timeout": 10,
+    "privateKey": "/path/to/ssh",
+    "root": "/path/to/backup"
+  }
+}
