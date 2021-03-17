@@ -85,6 +85,7 @@ $manager = new Manager($filesystems, $databases, $compressors);
 foreach ($backupConfig->getItems() as $dbname => $config) {
     $destinations = [new Destination('sftp', $dbname . '/backup-' . date('YmdHis') . '.sql')];
     try {
+        echo $dbname . '备份中...' . PHP_EOL;
         $manager->makeBackup()->run($dbname, $destinations, 'gzip');
     } catch (Throwable $e) {
     }
