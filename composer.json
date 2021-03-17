@@ -2,6 +2,8 @@
   "require": {
     "backup-manager/backup-manager": "^3.0",
     "league/flysystem-sftp": "^1.0",
-    "ext-json": "*"
+    "ext-json": "*",
+    "ext-pdo": "*",
+    "guzzlehttp/guzzle": "^7.2"
   }
 }

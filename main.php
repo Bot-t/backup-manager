@@ -11,9 +11,56 @@ use BackupManager\Filesystems\FilesystemProvider;
 use BackupManager\Filesystems\LocalFilesystem;
 use BackupManager\Filesystems\SftpFilesystem;
 use BackupManager\Manager;
+use GuzzleHttp\Client;
 
-$databaseJson = file_get_contents(dirname(Phar::running(false)) . '/database.json');
-$backupConfig = new Config(json_decode($databaseJson, true));
+function notify(string $content)
+{
+    $configFile = dirname(Phar::running(false)) . '/skype.json';
+    if (!file_exists($configFile)) {
+        return;
+    }
+
+    $config = new Config(json_decode(file_get_contents($configFile), true));
+
+    try {
+        $client = new Client([
+            'base_uri' => $config->get('url'),
+            'headers' => [
+                'Authorization' => $config->get('token'),
+            ],
+        ]);
+
+        $client->post('/api/notify', [
+            'json' => [
+                [
+                    'cid' => $config->get('cid'),
+                    'content' => $content,
+                ],
+            ],
+        ]);
+    } catch (Throwable $e) {
+    }
+}
+
+// 检查数据库连接并过滤
+$dbConfigAry = json_decode(file_get_contents(dirname(Phar::running(false)) . '/database.json'), true);
+foreach ($dbConfigAry as $dbname => $config) {
+    $dsn = "{$config['type']}:host={$config['host']};port={$config['port']};dbname={$config['database']}";
+    try {
+        new PDO($dsn, $config['user'], $config['pass']);
+    } catch (Throwable $e) {
+        unset($dbConfigAry[$dbname]);
+        echo '数据库[' . $dbname . ']连接失败：' . $dsn . PHP_EOL;
+        $msg = <<<EOL
+【异常通知】- Backup
+════════════════════════
+{$dbname}->{$dsn}
+EOL;
+        notify($msg);
+    }
+}
+
+$backupConfig = new Config($dbConfigAry);
 
 $storageJson = file_get_contents(dirname(Phar::running(false)) . '/storage.json');
 $fileConfig = new Config(json_decode($storageJson, true));
@@ -32,5 +79,8 @@ $manager = new Manager($filesystems, $databases, $compressors);
 
 foreach ($backupConfig->getItems() as $dbname => $config) {
     $destinations = [new Destination('sftp', $dbname . '/backup-' . date('YmdHis') . '.sql')];
-    $manager->makeBackup()->run($dbname, $destinations, 'gzip');
+    try {
+        $manager->makeBackup()->run($dbname, $destinations, 'gzip');
+    } catch (Throwable $e) {
+    }
 }
