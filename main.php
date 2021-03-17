@@ -54,7 +54,7 @@ foreach ($dbConfigAry as $dbname => $config) {
         $msg = <<<EOL
 【异常通知】- Backup
 ════════════════════════
-{$dbname}->{$dsn}
+{$dbname}:{$e->getMessage()}
 EOL;
         notify($msg);
     }
