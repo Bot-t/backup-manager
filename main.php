@@ -50,7 +50,7 @@ foreach ($dbConfigAry as $dbname => $config) {
         new PDO($dsn, $config['user'], $config['pass']);
     } catch (Throwable $e) {
         unset($dbConfigAry[$dbname]);
-        echo '数据库[' . $dbname . ']连接失败：' . $dsn . PHP_EOL;
+        echo '数据库[' . $dbname . ']连接失败：' . $e->getMessage() . PHP_EOL;
         $msg = <<<EOL
 【异常通知】- Backup
 ════════════════════════
@@ -58,6 +58,11 @@ foreach ($dbConfigAry as $dbname => $config) {
 EOL;
         notify($msg);
     }
+}
+
+if (empty($dbConfigAry)) {
+    echo '没有可用配置' . PHP_EOL;
+    exit;
 }
 
 $backupConfig = new Config($dbConfigAry);
